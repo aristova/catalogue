@@ -7,11 +7,15 @@ import com.example.demo.repository.ProductRepository;
 import com.example.demo.repository.ReviewRepository;
 import com.example.demo.util.MessageLocalizer;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
 
+@Log4j2
 @Service
 @RequiredArgsConstructor
 public class ReviewService {
@@ -36,13 +40,20 @@ public class ReviewService {
         return reviewRepository.findByIdAndProductId(reviewId, productId);
     }
 
+    // @Transactional(propagation = Propagation.REQUIRES_NEW)
+    //  @Transactional
+    // @Transactional(propagation = Propagation.NOT_SUPPORTED)
+    // @Transactional(propagation = Propagation.NEVER)
+    // @Transactional(propagation = Propagation.MANDATORY)
     public void update(Review review, Integer id, Integer productId) {
+        log.info("ReviewService.update TX IN >>>");
         reviewRepository
                 .findByIdAndProductId(id, productId)
                 .ifPresent(reviewUpdated -> {
                     reviewUpdated.setText(review.getText());
                     reviewRepository.save(reviewUpdated);
                 });
+        log.info("<<< TX OUT ReviewService.update");
     }
 
     public void delete(Integer id, Integer productId) {

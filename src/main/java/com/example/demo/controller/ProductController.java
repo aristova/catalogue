@@ -2,6 +2,7 @@ package com.example.demo.controller;
 
 import com.example.demo.entity.Product;
 import com.example.demo.exception.NotFoundException;
+import com.example.demo.to.ProductWithReviews;
 import com.example.demo.util.MessageLocalizer;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -54,6 +55,13 @@ public class ProductController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public ResponseEntity<Void> update(@RequestBody @Valid Product newProduct, @PathVariable Integer id) {
         service.update(newProduct);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PutMapping("/{id}/with-reviews")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public ResponseEntity<Void> updateProductWithReviews(@RequestBody ProductWithReviews productWithReviews, @PathVariable String id) {
+        service.updateProductWithReviews(productWithReviews.getProduct(), productWithReviews.getReview());
         return ResponseEntity.noContent().build();
     }
 

@@ -1,15 +1,20 @@
 package com.example.demo.service;
 
 import com.example.demo.entity.Product;
+import com.example.demo.entity.Review;
 import com.example.demo.exception.NotFoundException;
 import com.example.demo.repository.ProductRepository;
+import com.example.demo.repository.ReviewRepository;
 import com.example.demo.util.MessageLocalizer;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
 
+@Log4j2
 @Service
 @RequiredArgsConstructor
 public class ProductService {
@@ -17,6 +22,10 @@ public class ProductService {
     private final MessageLocalizer localizer;
 
     private final ProductRepository productRepository;
+
+    private final ReviewRepository reviewRepository;
+
+    private final ReviewService reviewService;
 
     public List<Product> findAll() {
         return productRepository.findAll();
@@ -46,4 +55,13 @@ public class ProductService {
         productRepository.deleteById(id);
     }
 
+    @Transactional
+    public void updateProductWithReviews(Product product, Review review) {
+        log.info("updateProductWithReviews TX IN >>>");
+        update(product);
+        reviewService.update(review, review.getId(), product.getId());
+        log.info("<<< TX OUT updateProductWithReviews");
+        throw new RuntimeException("Something went wrong in ProductService");
+        //  throw new RuntimeException("Something went wrong in ProductService");
+    }
 }

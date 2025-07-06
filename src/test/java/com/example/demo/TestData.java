@@ -31,6 +31,10 @@ public class TestData {
         return new Product(null, "New product", "New product details", null, null);
     }
 
+    public static Review getNewReview() {
+        return new Review(null, REVIEW_NEW_TEXT, null);
+    }
+
     public static Product getNewEmptyTitle() {
         return new Product(null, "", "Product details", null, null);
     }
