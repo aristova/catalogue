@@ -1,11 +1,8 @@
 package com.example.demo;
 
 import com.example.demo.entity.Product;
-import com.example.demo.entity.Review;
 import com.example.demo.repository.ProductRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import jakarta.persistence.EntityGraph;
-import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 import org.hamcrest.core.Is;
 import org.hibernate.Hibernate;
@@ -18,6 +15,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.security.test.context.support.WithUserDetails;
 
 import java.util.List;
 
@@ -35,7 +33,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 @Sql(scripts = "/data.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
 class ProductTest {
-
     @Autowired
     private MockMvc mockMvc;
 
@@ -49,20 +46,22 @@ class ProductTest {
     private EntityManagerFactory emf;
 
     @Test
-    void create() throws Exception {
+    @WithUserDetails(value = "admin")
+    void create_whenValidInput_shouldCreateProduct() throws Exception {
         String jsonProduct = objectMapper.writeValueAsString(getNew());
 
         mockMvc.perform(post(REST_URL)
                         .contentType(MediaType.APPLICATION_JSON_UTF8)
                         .content(jsonProduct))
-                .andExpect(status().isCreated()); // 201
+                .andExpect(status().isCreated());
 
         List<Product> products = productRepository.findAll();
         assertThat(products).anyMatch(p -> p.getTitle().equals(getNew().getTitle()));
     }
 
     @Test
-    void update() throws Exception {
+    @WithUserDetails(value = "admin")
+    void update_whenValidInput_shouldUpdateProduct() throws Exception {
         String jsonProductUpdated = objectMapper.writeValueAsString(getUpdated());
 
         mockMvc.perform(put(REST_URL + "/" + PRODUCT_1_ID)
@@ -75,7 +74,8 @@ class ProductTest {
     }
 
     @Test
-    void delete() throws Exception {
+    @WithUserDetails(value = "admin")
+    void delete_whenProductExists_shouldDeleteSuccessfully() throws Exception {
         mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders
                         .delete(REST_URL + "/" + PRODUCT_1_ID))
                 .andExpect(status().isNoContent());
@@ -85,7 +85,8 @@ class ProductTest {
     }
 
     @Test
-    void get() throws Exception {
+    @WithUserDetails(value = "admin")
+    void get_whenProductExists_shouldReturnProduct() throws Exception {
         mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders
                         .get(REST_URL + "/" + PRODUCT_1_ID))
                 .andExpect(status().isOk())
@@ -95,7 +96,8 @@ class ProductTest {
     }
 
     @Test
-    void getAll() throws Exception {
+    @WithUserDetails(value = "admin")
+    void getAll_whenCalled_shouldReturnAllProducts() throws Exception {
         mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get(REST_URL))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8))
@@ -103,21 +105,24 @@ class ProductTest {
     }
 
     @Test
-    void deleteNotFound() throws Exception {
+    @WithUserDetails(value = "admin")
+    void delete_whenProductNotFound_shouldReturn404() throws Exception {
         mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders
                         .delete(REST_URL + "/" + PRODUCT_NOT_FOUND))
                 .andExpect(status().isNotFound());
     }
 
     @Test
-    void getNotFound() throws Exception {
+    @WithUserDetails(value = "admin")
+    void get_whenProductNotFound_shouldReturn404() throws Exception {
         mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders
                         .get(REST_URL + "/" + PRODUCT_NOT_FOUND))
                 .andExpect(status().isNotFound());
     }
 
     @Test
-    void createEmptyTitle() throws Exception {
+    @WithUserDetails(value = "admin")
+    void create_whenTitleIsEmpty_shouldReturnValidationError() throws Exception {
         String jsonProduct = objectMapper.writeValueAsString(getNewEmptyTitle());
 
         mockMvc.perform(post(REST_URL)
@@ -128,7 +133,8 @@ class ProductTest {
     }
 
     @Test
-    void createNotValidDetails() throws Exception {
+    @WithUserDetails(value = "admin")
+    void create_whenDetailsTooShort_shouldReturnValidationError() throws Exception {
         String jsonProduct = objectMapper.writeValueAsString(getNewShortDetails());
 
         mockMvc.perform(post(REST_URL)
@@ -139,7 +145,7 @@ class ProductTest {
     }
 
     @Test
-    void shouldLoadGraphDynamically() {
+    void fetchProducts_shouldInitializeReviewsWithSingleQuery() {
         // Enable Hibernate statistics
         SessionFactory sf = emf.unwrap(SessionFactory.class);
         Statistics stats = sf.getStatistics();

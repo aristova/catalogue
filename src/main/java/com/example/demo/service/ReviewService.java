@@ -16,9 +16,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class ReviewService {
     private final ReviewRepository reviewRepository;
-
     private final ProductRepository productRepository;
-
     private final MessageLocalizer localizer;
 
     public List<Review> findByProduct(int productId) {

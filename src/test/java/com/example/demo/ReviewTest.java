@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -34,14 +35,16 @@ class ReviewTest {
     private ReviewRepository reviewRepository;
 
     @Test
-    void getAllReviews() throws Exception {
+    @WithUserDetails(value = "admin")
+    void getAll_whenProductExists_shouldReturnReviews() throws Exception {
         mockMvc.perform(get("/api/products/" + PRODUCT_1_ID + "/reviews"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8));
     }
 
     @Test
-    void getReview() throws Exception {
+    @WithUserDetails(value = "admin")
+    void get_whenReviewExists_shouldReturnReview() throws Exception {
         mockMvc.perform(get("/api/products/" + PRODUCT_1_ID + "/reviews/" + REVIEW_1_ID))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8))
@@ -50,13 +53,15 @@ class ReviewTest {
     }
 
     @Test
-    void getReviewNotFound() throws Exception {
+    @WithUserDetails(value = "admin")
+    void get_whenReviewNotFound_shouldReturn404() throws Exception {
         mockMvc.perform(get("/api/products/" + PRODUCT_1_ID + "/reviews/" + REVIEW_NOT_FOUND))
                 .andExpect(status().isNotFound());
     }
 
     @Test
-    void createReview() throws Exception {
+    @WithUserDetails(value = "admin")
+    void create_whenValidInput_shouldCreateReview() throws Exception {
         Review newReview = new Review();
         newReview.setText(REVIEW_NEW_TEXT);
 
@@ -69,7 +74,8 @@ class ReviewTest {
     }
 
     @Test
-    void createInvalidReview() throws Exception {
+    @WithUserDetails(value = "admin")
+    void create_whenInvalidInput_shouldReturn400() throws Exception {
         Review invalidReview = new Review();
 
         mockMvc.perform(post("/api/products/" + PRODUCT_1_ID + "/reviews")
@@ -79,7 +85,8 @@ class ReviewTest {
     }
 
     @Test
-    void updateReview() throws Exception {
+    @WithUserDetails(value = "admin")
+    void update_whenValidInput_shouldUpdateReview() throws Exception {
         String jsonReviewUpdated = objectMapper.writeValueAsString(getReviewUpdated());
 
         mockMvc.perform(put("/api/products/" + PRODUCT_1_ID + "/reviews/" + REVIEW_1_ID)
@@ -93,13 +100,15 @@ class ReviewTest {
     }
 
     @Test
-    void deleteReview() throws Exception {
+    @WithUserDetails(value = "admin")
+    void delete_whenReviewExists_shouldDeleteReview() throws Exception {
         mockMvc.perform(delete("/api/products/" + PRODUCT_1_ID + "/reviews/" + REVIEW_1_ID))
                 .andExpect(status().isNoContent());
     }
 
     @Test
-    void deleteReviewNotFound() throws Exception {
+    @WithUserDetails(value = "admin")
+    void delete_whenReviewNotFound_shouldReturn404() throws Exception {
         mockMvc.perform(delete("/api/products/" + PRODUCT_1_ID + "/reviews/" + REVIEW_NOT_FOUND))
                 .andExpect(status().isNotFound());
     }

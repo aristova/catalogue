@@ -21,11 +21,8 @@ import java.util.Map;
 @RequiredArgsConstructor
 @RequestMapping(value = ReviewController.REST_URL, produces = MediaType.APPLICATION_JSON_VALUE)
 public class ReviewController {
-
     public static final String REST_URL = "/api/products/{product_id}/reviews";
-
     private final ReviewService service;
-
     private final MessageLocalizer localizer;
 
     @GetMapping

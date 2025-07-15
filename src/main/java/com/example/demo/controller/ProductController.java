@@ -26,9 +26,7 @@ import java.util.Objects;
 @RequestMapping(value = ProductController.REST_URL, produces = MediaType.APPLICATION_JSON_VALUE)
 public class ProductController {
     public static final String REST_URL = "/api/products";
-
     private final MessageLocalizer localizer;
-
     private final ProductService service;
 
     @GetMapping
@@ -52,7 +50,7 @@ public class ProductController {
 
     @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public ResponseEntity<Void> update(@RequestBody @Valid Product newProduct, @PathVariable Integer id) {
+    public ResponseEntity<Void> update(@RequestBody @Valid Product newProduct) {
         service.update(newProduct);
         return ResponseEntity.noContent().build();
     }

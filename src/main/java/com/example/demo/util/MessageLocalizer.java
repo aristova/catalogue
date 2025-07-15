@@ -8,7 +8,6 @@ import org.springframework.stereotype.Component;
 @Component
 @RequiredArgsConstructor
 public class MessageLocalizer {
-
     private final MessageSource messageSource;
 
     public String getMessage(String key, Object... args) {
